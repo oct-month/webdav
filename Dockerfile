@@ -1,10 +1,13 @@
-FROM alpine:latest as certs
-RUN apk --update add ca-certificates
+FROM alpine:3
+RUN apk --update add ca-certificates --no-cache
 
-FROM scratch
-COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+WORKDIR /webdav
+EXPOSE 8080
+VOLUME /webdav/data
 
-EXPOSE 80
-COPY webdav /webdav
+COPY webdav /webdav/
+COPY cert.pem /webdav/
+COPY key.pem /webdav/
+COPY config.yaml /webdav/
 
-ENTRYPOINT [ "/webdav" ]
+ENTRYPOINT [ "/webdav/webdav", "-c", "/webdav/config.yaml" ]
